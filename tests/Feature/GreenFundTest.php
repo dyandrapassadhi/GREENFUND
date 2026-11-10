@@ -212,4 +212,85 @@ class GreenFundTest extends TestCase
         config(['services.qris.static' => '']);
         $this->get('/donasi/'.$d->kode.'/qris.png')->assertNotFound();
     }
+
+    public function test_google_login_tersembunyi_tanpa_kredensial(): void
+    {
+        config(['services.google.client_id' => '', 'services.google.client_secret' => '']);
+
+        $this->get('/login')->assertOk()->assertDontSee('Masuk dengan Google');
+        $this->get('/auth/google')->assertNotFound();
+        $this->get('/auth/google/callback')->assertNotFound();
+    }
+
+    public function test_google_login_mengarahkan_ke_google(): void
+    {
+        config([
+            'services.google.client_id' => 'dummy-client-id',
+            'services.google.client_secret' => 'dummy-secret',
+            'services.google.redirect' => 'http://localhost/auth/google/callback',
+        ]);
+
+        $this->get('/login')->assertOk()->assertSee('Masuk dengan Google');
+
+        $res = $this->get('/auth/google');
+        $res->assertRedirectContains('accounts.google.com');
+        $this->assertStringContainsString('dummy-client-id', $res->headers->get('Location'));
+    }
+
+    public function test_google_callback_membuat_akun_donatur(): void
+    {
+        config([
+            'services.google.client_id' => 'dummy-client-id',
+            'services.google.client_secret' => 'dummy-secret',
+        ]);
+
+        $googleUser = \Mockery::mock(\Laravel\Socialite\Two\User::class);
+        $googleUser->shouldReceive('getId')->andReturn('google-123');
+        $googleUser->shouldReceive('getEmail')->andReturn('googleuser@gmail.com');
+        $googleUser->shouldReceive('getName')->andReturn('Google User');
+        $googleUser->shouldReceive('getAvatar')->andReturn('https://example.com/a.png');
+
+        \Laravel\Socialite\Facades\Socialite::shouldReceive('driver->user')->andReturn($googleUser);
+
+        $this->get('/auth/google/callback')->assertRedirect('/kampanye');
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'googleuser@gmail.com',
+            'role' => 'donatur',
+            'google_id' => 'google-123',
+        ]);
+        $this->assertAuthenticated();
+    }
+
+    public function test_google_callback_tidak_menimpa_role_admin(): void
+    {
+        config([
+            'services.google.client_id' => 'dummy-client-id',
+            'services.google.client_secret' => 'dummy-secret',
+        ]);
+
+        $admin = User::factory()->create(['email' => 'admin@greenfund.id', 'role' => 'admin']);
+
+        $googleUser = \Mockery::mock(\Laravel\Socialite\Two\User::class);
+        $googleUser->shouldReceive('getId')->andReturn('google-999');
+        $googleUser->shouldReceive('getEmail')->andReturn('admin@greenfund.id');
+        $googleUser->shouldReceive('getName')->andReturn('Admin Yayasan');
+        $googleUser->shouldReceive('getAvatar')->andReturn(null);
+
+        \Laravel\Socialite\Facades\Socialite::shouldReceive('driver->user')->andReturn($googleUser);
+
+        $this->get('/auth/google/callback')->assertRedirect('/kampanye');
+
+        $this->assertSame('admin', $admin->fresh()->role, 'role admin tidak boleh turun jadi donatur');
+        $this->assertSame('google-999', $admin->fresh()->google_id);
+    }
+
+    public function test_google_callback_menangani_penolakan(): void
+    {
+        config(['services.google.client_id' => 'dummy', 'services.google.client_secret' => 'dummy']);
+
+        $this->get('/auth/google/callback?error=access_denied')
+            ->assertRedirect('/login')
+            ->assertSessionHasErrors('email');
+    }
 }

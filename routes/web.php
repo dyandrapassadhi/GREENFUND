@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\LogPerkembanganController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DonasiController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\KatalogController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register.store');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
 Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
 Route::get('/donasi/{donasi:kode}', [DonasiController::class, 'invoice'])->name('donasi.invoice');
