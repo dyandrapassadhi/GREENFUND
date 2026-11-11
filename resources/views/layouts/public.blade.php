@@ -28,7 +28,9 @@
     </nav>
     <div class="row gap-12">
       @auth
-        <a href="{{ route('admin.dashboard') }}" class="btn btn-outline btn-sm">Panel Admin</a>
+        @if(auth()->user()->isAdmin())
+          <a href="{{ route('admin.dashboard') }}" class="btn btn-outline btn-sm">Panel Admin</a>
+        @endif
         <form method="post" action="{{ route('logout') }}">@csrf
           <button class="btn btn-primary btn-sm">Keluar</button>
         </form>

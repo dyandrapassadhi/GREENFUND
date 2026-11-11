@@ -33,7 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/donasi/{donasi:kode}/bukti', [DonasiController::class, 'uploadBukti'])->name('donasi.bukti');
 });
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/donatur', [DashboardController::class, 'donatur'])->name('donatur');
 

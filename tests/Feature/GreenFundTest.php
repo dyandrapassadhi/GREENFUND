@@ -62,6 +62,40 @@ class GreenFundTest extends TestCase
         }
     }
 
+    public function test_donatur_tidak_bisa_masuk_halaman_admin(): void
+    {
+        $donatur = User::factory()->create(['role' => 'donatur']);
+
+        foreach (['/admin', '/admin/kampanye', '/admin/log', '/admin/donasi', '/admin/donatur'] as $url) {
+            $this->actingAs($donatur)->get($url)->assertForbidden();
+        }
+
+        // aksi tulis juga tertutup
+        $k = $this->kampanye();
+        $this->actingAs($donatur)->post('/admin/kampanye', [
+            'judul' => 'Kampanye Gelap', 'kategori' => 'Gambut', 'lokasi' => 'X',
+            'target_pohon' => 10, 'harga_per_pohon' => 25000, 'status' => 'aktif',
+        ])->assertForbidden();
+        $this->assertDatabaseMissing('kampanye', ['judul' => 'Kampanye Gelap']);
+
+        // link Panel Admin tidak dirender untuk donatur
+        $this->actingAs($donatur)->get('/')->assertOk()->assertDontSee('Panel Admin');
+    }
+
+    public function test_akun_admin_khusus_bisa_masuk_panel(): void
+    {
+        $this->seed(\Database\Seeders\GreenFundSeeder::class);
+
+        foreach (['admin' => 'admin123', 'superadmin' => 'super123'] as $username => $password) {
+            $this->post('/logout');
+            $this->post('/login', ['login' => $username, 'password' => $password])
+                ->assertRedirect(route('admin.dashboard'));
+            $this->assertSame($username, auth()->user()->username);
+            $this->get('/admin')->assertOk();
+            $this->get('/')->assertSee('Panel Admin');
+        }
+    }
+
     public function test_login_seeder_lalu_semua_halaman_admin_terbuka(): void
     {
         $this->seed(\Database\Seeders\GreenFundSeeder::class);

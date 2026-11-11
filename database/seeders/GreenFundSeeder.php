@@ -23,6 +23,17 @@ class GreenFundSeeder extends Seeder
             ]
         );
 
+        // akun super admin terpisah (username login khusus panel)
+        User::updateOrCreate(
+            ['email' => 'superadmin@greenfund.id'],
+            [
+                'name' => 'Super Admin',
+                'username' => 'superadmin',
+                'role' => 'admin',
+                'password' => Hash::make('super123'),
+            ]
+        );
+
         $rows = [
             ['Hutan Mangrove Pesisir Demak', 'Mangrove', 'Demak, Jawa Tengah', 10000, 7200, 24],
             ['Restorasi DAS Citarum Hulu', 'Restorasi DAS', 'Bandung, Jawa Barat', 10000, 4500, 41],
