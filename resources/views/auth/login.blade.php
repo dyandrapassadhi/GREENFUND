@@ -41,28 +41,34 @@
       <h1 class="h2 mt-8" style="font-size:32px;line-height:40px">Masuk ke akunmu</h1>
       <p class="small mt-8">Lanjutkan donasi dan pantau pohon yang sudah kamu tanam.</p>
 
-      @if(config('services.google.client_id'))
-        <a href="{{ route('google.redirect') }}" class="btn btn-outline btn-block mt-24">
-          <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z"/>
-            <path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1A12 12 0 0 0 12 24Z"/>
-            <path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7H1.4a12 12 0 0 0 0 10.8l4-3.1Z"/>
-            <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.7l4 3.1C6.3 6.9 8.9 4.8 12 4.8Z"/>
-          </svg>
-          Masuk dengan Google</a>
-      @endif
+      @php $googleReady = filled(config('services.google.client_id')); @endphp
+      <a href="{{ route('google.redirect') }}" class="btn btn-outline btn-block mt-24"
+         @unless($googleReady) aria-disabled="true" @endunless>
+        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5a5.6 5.6 0 0 1-2.4 3.6v3h3.9c2.3-2.1 3.5-5.2 3.5-8.8Z"/>
+          <path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.4 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1A12 12 0 0 0 12 24Z"/>
+          <path fill="#FBBC05" d="M5.4 14.4a7.2 7.2 0 0 1 0-4.6V6.7H1.4a12 12 0 0 0 0 10.8l4-3.1Z"/>
+          <path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4A12 12 0 0 0 1.4 6.7l4 3.1C6.3 6.9 8.9 4.8 12 4.8Z"/>
+        </svg>
+        Masuk dengan Google</a>
+      @unless($googleReady)
+        <p class="tiny mt-8" style="text-align:center;color:var(--muted)">
+          Google login belum aktif — isi <code>GOOGLE_CLIENT_ID</code> di <code>.env</code>
+        </p>
+      @endunless
 
       <div class="divider-label">atau</div>
 
       <form method="post" action="{{ route('login.attempt') }}">
         @csrf
         <div class="field">
-          <label class="label" for="email">Email</label>
+          <label class="label" for="login">Email atau Username</label>
           <div class="input">
             <span data-icon="mail" data-ic-class="ic-sm" style="color:var(--muted)"></span>
-            <input id="email" type="email" name="email" value="{{ old('email') }}" placeholder="nama@email.com" required autofocus>
+            <input id="login" type="text" name="login" value="{{ old('login') }}"
+                   placeholder="nama@email.com atau username admin" required autofocus>
           </div>
-          @error('email')<p class="err">{{ $message }}</p>@enderror
+          @error('login')<p class="err">{{ $message }}</p>@enderror
         </div>
 
         <div class="field mt-16">

@@ -18,15 +18,12 @@ class DonasiController extends Controller
     {
         $data = $request->validate([
             'kampanye_id' => ['required', 'exists:kampanye,id'],
-            'nama_donatur' => ['required', 'string', 'max:80'],
-            'email' => ['required', 'email', 'max:120'],
             'jumlah_pohon' => ['required', 'integer', 'min:1', 'max:100000'],
         ], [
-            'nama_donatur.required' => 'Nama donatur wajib diisi.',
-            'email.required' => 'Email wajib diisi untuk menerima invoice.',
             'jumlah_pohon.min' => 'Minimal 1 pohon per donasi.',
         ]);
 
+        $user = $request->user();
         $kampanye = Kampanye::findOrFail($data['kampanye_id']);
         $subtotal = $data['jumlah_pohon'] * $kampanye->harga_per_pohon;
         $unik = random_int(100, 999);
@@ -34,9 +31,9 @@ class DonasiController extends Controller
         $donasi = Donasi::create([
             'kode' => Donasi::kodeBaru(),
             'kampanye_id' => $kampanye->id,
-            'user_id' => auth()->id(),
-            'nama_donatur' => $data['nama_donatur'],
-            'email' => $data['email'],
+            'user_id' => $user->id,
+            'nama_donatur' => $user->name,
+            'email' => $user->email,
             'jumlah_pohon' => $data['jumlah_pohon'],
             'subtotal' => $subtotal,
             'biaya_admin' => 5000,

@@ -41,7 +41,7 @@
       <span class="avatar amber">{{ $initials }}</span>
       <span class="grow">
         <span style="font-size:13px;font-weight:700;color:#fff">{{ $u?->name ?? 'Admin Yayasan' }}</span>
-        <small>{{ $u?->email ?? 'admin@greenfund.id' }}</small>
+        <small>{{ $u?->username ? '@'.$u->username : $u?->email }}</small>
       </span>
       <form method="post" action="{{ route('logout') }}">@csrf
         <button title="Keluar" style="color:rgba(255,255,255,.7);display:flex"><span data-icon="log-out" data-ic-class="ic-sm"></span></button>

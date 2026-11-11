@@ -133,28 +133,39 @@
         <form method="post" action="{{ route('donasi.store') }}" class="mt-16" id="donasiForm">
           @csrf
           <input type="hidden" name="kampanye_id" value="{{ $kampanye->id }}">
-          <div class="field">
-            <label class="label">Nama donatur</label>
-            <div class="input"><input name="nama_donatur" value="{{ old('nama_donatur', auth()->user()?->name) }}" placeholder="Nama kamu" required></div>
-          </div>
-          <div class="field mt-12">
-            <label class="label">Email</label>
-            <div class="input"><input type="email" name="email" value="{{ old('email', auth()->user()?->email) }}" placeholder="nama@email.com" required></div>
-          </div>
-          <div class="field mt-16">
-            <label class="label">Jumlah pohon</label>
-            <div class="stepper">
-              <button type="button" data-step="-1" aria-label="Kurangi">&minus;</button>
-              <input type="number" name="jumlah_pohon" id="qty" value="{{ old('jumlah_pohon', 10) }}" min="1" step="1">
-              <button type="button" data-step="1" aria-label="Tambah">+</button>
+          @auth
+            <div class="sum-price" style="gap:8px;align-items:flex-start">
+              <span style="color:var(--muted);font-weight:600">Donasi sebagai</span>
+              <span style="text-align:right">
+                <b style="display:block">{{ auth()->user()->name }}</b>
+                <small class="small" style="font-size:11.5px">{{ auth()->user()->email }}</small>
+              </span>
             </div>
-          </div>
-          <div class="row between mt-16">
-            <span class="label">Total donasi</span>
-            <b class="num" id="total" style="font-size:16px;font-weight:800">Rp 250.000</b>
-          </div>
-          <button class="btn btn-primary btn-block mt-16">Lanjutkan Donasi
-            <span data-icon="arrow-right" data-ic-class="ic-sm"></span></button>
+            <div class="field mt-16">
+              <label class="label">Jumlah pohon</label>
+              <div class="stepper">
+                <button type="button" data-step="-1" aria-label="Kurangi">&minus;</button>
+                <input type="number" name="jumlah_pohon" id="qty" value="{{ old('jumlah_pohon', 10) }}" min="1" step="1">
+                <button type="button" data-step="1" aria-label="Tambah">+</button>
+              </div>
+            </div>
+            <div class="row between mt-16">
+              <span class="label">Total donasi</span>
+              <b class="num" id="total" style="font-size:16px;font-weight:800">Rp 250.000</b>
+            </div>
+            <button class="btn btn-primary btn-block mt-16">Lanjutkan Donasi
+              <span data-icon="arrow-right" data-ic-class="ic-sm"></span></button>
+          @else
+            <div class="note-pill" style="background:var(--amber-soft);color:#8A6A12">
+              <span data-icon="lock" data-ic-class="ic-sm"></span>
+              Masuk dulu untuk melanjutkan donasi
+            </div>
+            <a href="{{ route('login') }}" class="btn btn-primary btn-block mt-16">Masuk untuk Donasi
+              <span data-icon="arrow-right" data-ic-class="ic-sm"></span></a>
+            <p class="tiny mt-8" style="text-align:center">
+              Belum punya akun? <a href="{{ route('register') }}" style="color:var(--emerald);font-weight:700">Daftar gratis</a>
+            </p>
+          @endauth
         </form>
 
         <div class="note-pill mt-16">

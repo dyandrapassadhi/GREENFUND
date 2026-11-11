@@ -51,7 +51,8 @@ class GreenFundTest extends TestCase
             'biaya_admin' => 5000, 'kode_unik' => 123, 'total' => 55123, 'status' => 'pending',
         ]);
 
-        $this->get('/donasi/'.$donasi->kode)->assertOk()->assertSee('Rp 55.123');
+        $this->actingAs(User::factory()->create(['role' => 'donatur']))
+            ->get('/donasi/'.$donasi->kode)->assertOk()->assertSee('Rp 55.123');
     }
 
     public function test_admin_wajib_login(): void
@@ -142,21 +143,81 @@ class GreenFundTest extends TestCase
         $this->get('/kampanye/uji-mangrove')->assertOk()->assertSee('Penanaman batch #1');
     }
 
-    public function test_donasi_publik_membuat_invoice(): void
+    public function test_donasi_wajib_login(): void
     {
         $k = $this->kampanye();
 
-        $res = $this->post('/donasi', [
-            'kampanye_id' => $k->id,
-            'nama_donatur' => 'Budi',
+        // endpoint donasi menolak guest
+        $this->post('/donasi', ['kampanye_id' => $k->id, 'jumlah_pohon' => 4])
+            ->assertRedirect('/login');
+        $this->get('/donasi/INV-2026-09001')->assertRedirect('/login');
+
+        // halaman detail tetap publik, tapi menampilkan ajakan login
+        $this->get('/kampanye/uji-mangrove')->assertOk()
+            ->assertSee('Masuk untuk Donasi')
+            ->assertSee('Masuk dulu untuk melanjutkan donasi');
+
+        $this->assertDatabaseCount('donasi', 0);
+    }
+
+    public function test_donasi_login_memakai_identitas_akun(): void
+    {
+        $k = $this->kampanye();
+        $user = User::factory()->create([
+            'name' => 'Budi Santoso',
             'email' => 'budi@email.com',
+            'role' => 'donatur',
+        ]);
+
+        $res = $this->actingAs($user)->post('/donasi', [
+            'kampanye_id' => $k->id,
             'jumlah_pohon' => 4,
         ]);
 
         $d = Donasi::firstOrFail();
         $res->assertRedirect('/donasi/'.$d->kode);
+        $this->assertSame($user->id, $d->user_id);
+        $this->assertSame('Budi Santoso', $d->nama_donatur);
+        $this->assertSame('budi@email.com', $d->email);
         $this->assertSame(4 * 25000 + 5000 + $d->kode_unik, $d->total);
         $this->assertSame('pending', $d->status);
+    }
+
+    public function test_login_admin_pakai_username_dan_masuk_panel(): void
+    {
+        $this->seed(\Database\Seeders\GreenFundSeeder::class);
+
+        $this->post('/login', ['login' => 'admin', 'password' => 'admin123'])
+            ->assertRedirect(route('admin.dashboard'));
+
+        $this->assertAuthenticated();
+        $this->assertSame('admin', auth()->user()->username);
+    }
+
+    public function test_login_donatur_pakai_email_tidak_masuk_panel(): void
+    {
+        $user = User::factory()->create([
+            'name' => 'Donatur Biasa',
+            'email' => 'donatur@email.com',
+            'role' => 'donatur',
+            'password' => bcrypt('rahasia123'),
+        ]);
+
+        $this->post('/login', ['login' => 'donatur@email.com', 'password' => 'rahasia123'])
+            ->assertRedirect(route('katalog'));
+
+        $this->assertAuthenticatedAs($user);
+    }
+
+    public function test_login_salah_menampilkan_error(): void
+    {
+        $this->seed(\Database\Seeders\GreenFundSeeder::class);
+
+        $this->from('/login')
+            ->post('/login', ['login' => 'admin', 'password' => 'salah'])
+            ->assertRedirect('/login')
+            ->assertSessionHasErrors('login');
+        $this->assertGuest();
     }
 
     public function test_register_membuat_akun_donatur(): void
@@ -204,7 +265,7 @@ class GreenFundTest extends TestCase
             'biaya_admin' => 5000, 'kode_unik' => 111, 'total' => 55111, 'status' => 'pending',
         ]);
 
-        $res = $this->get('/donasi/'.$d->kode.'/qris.png');
+        $res = $this->actingAs(User::factory()->create())->get('/donasi/'.$d->kode.'/qris.png');
         $res->assertOk();
         $this->assertSame('image/png', $res->headers->get('Content-Type'));
         $this->assertStringStartsWith("\x89PNG", $res->getContent());
@@ -217,7 +278,10 @@ class GreenFundTest extends TestCase
     {
         config(['services.google.client_id' => '', 'services.google.client_secret' => '']);
 
-        $this->get('/login')->assertOk()->assertDontSee('Masuk dengan Google');
+        // tombol tetap tampil (sesuai desain), tapi diberi catatan belum aktif
+        $this->get('/login')->assertOk()
+            ->assertSee('Masuk dengan Google')
+            ->assertSee('Google login belum aktif');
         $this->get('/auth/google')->assertNotFound();
         $this->get('/auth/google/callback')->assertNotFound();
     }

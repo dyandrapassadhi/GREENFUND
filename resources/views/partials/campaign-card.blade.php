@@ -16,7 +16,7 @@
       <span class="num">dari {{ number_format($k->target_pohon, 0, ',', '.') }}</span>
     </div>
     <a href="{{ route('katalog.show', $k) }}" class="btn btn-primary btn-block" style="height:42px;font-size:14px;margin-top:6px">
-      Donasi <span data-icon="arrow-right" data-ic-class="ic-sm"></span>
+      {{ auth()->check() ? 'Donasi' : 'Masuk untuk Donasi' }} <span data-icon="arrow-right" data-ic-class="ic-sm"></span>
     </a>
   </div>
 </article>

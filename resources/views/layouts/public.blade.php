@@ -34,7 +34,7 @@
         </form>
       @else
         <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Masuk</a>
-        <a href="{{ route('katalog') }}" class="btn btn-primary btn-sm">Donasi Sekarang
+        <a href="{{ auth()->check() ? route('katalog') : route('login') }}" class="btn btn-primary btn-sm">Donasi Sekarang
           <span data-icon="arrow-right" data-ic-class="ic-sm"></span></a>
       @endauth
     </div>

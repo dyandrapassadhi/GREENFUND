@@ -26,10 +26,12 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/auth/google', [GoogleAuthController::class, 'redirect'])->name('google.redirect');
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'callback'])->name('google.callback');
 
-Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
-Route::get('/donasi/{donasi:kode}', [DonasiController::class, 'invoice'])->name('donasi.invoice');
-Route::get('/donasi/{donasi:kode}/qris.png', [DonasiController::class, 'qris'])->name('donasi.qris');
-Route::post('/donasi/{donasi:kode}/bukti', [DonasiController::class, 'uploadBukti'])->name('donasi.bukti');
+Route::middleware('auth')->group(function () {
+    Route::post('/donasi', [DonasiController::class, 'store'])->name('donasi.store');
+    Route::get('/donasi/{donasi:kode}', [DonasiController::class, 'invoice'])->name('donasi.invoice');
+    Route::get('/donasi/{donasi:kode}/qris.png', [DonasiController::class, 'qris'])->name('donasi.qris');
+    Route::post('/donasi/{donasi:kode}/bukti', [DonasiController::class, 'uploadBukti'])->name('donasi.bukti');
+});
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

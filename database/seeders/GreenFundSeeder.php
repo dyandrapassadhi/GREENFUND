@@ -15,7 +15,12 @@ class GreenFundSeeder extends Seeder
     {
         $admin = User::updateOrCreate(
             ['email' => 'admin@greenfund.id'],
-            ['name' => 'Admin Yayasan', 'role' => 'admin', 'password' => Hash::make('password')]
+            [
+                'name' => 'Admin Yayasan',
+                'username' => 'admin',
+                'role' => 'admin',
+                'password' => Hash::make('admin123'),
+            ]
         );
 
         $rows = [

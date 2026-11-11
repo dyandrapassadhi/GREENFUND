@@ -17,21 +17,26 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $data = $request->validate([
-            'email' => ['required', 'email'],
+            'login' => ['required', 'string'],
             'password' => ['required'],
         ], [
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Format email tidak valid.',
+            'login.required' => 'Email atau username wajib diisi.',
             'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
-        if (! Auth::attempt($data, $request->boolean('ingat'))) {
-            return back()->withErrors(['email' => 'Email atau kata sandi salah.'])->onlyInput('email');
+        // admin pakai username, donatur pakai email — dua-duanya diterima
+        $field = str_contains($data['login'], '@') ? 'email' : 'username';
+
+        if (! Auth::attempt([$field => $data['login'], 'password' => $data['password']], $request->boolean('ingat'))) {
+            return back()->withErrors(['login' => 'Email/username atau kata sandi salah.'])->onlyInput('login');
         }
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('admin.dashboard'))->with('ok', 'Selamat datang kembali, '.auth()->user()->name.'.');
+        // admin langsung ke panel, donatur ke halaman yang tadi dituju
+        $target = auth()->user()->isAdmin() ? route('admin.dashboard') : route('katalog');
+
+        return redirect()->intended($target)->with('ok', 'Selamat datang kembali, '.auth()->user()->name.'.');
     }
 
     public function registerForm()
