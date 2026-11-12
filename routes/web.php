@@ -36,6 +36,7 @@ Route::middleware('auth')->group(function () {
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/donatur', [DashboardController::class, 'donatur'])->name('donatur');
+    Route::delete('/donatur/{email}', [DashboardController::class, 'hapusDonatur'])->name('donatur.destroy');
 
     Route::get('/kampanye', [KampanyeController::class, 'index'])->name('kampanye.index');
     Route::post('/kampanye', [KampanyeController::class, 'store'])->name('kampanye.store');
@@ -48,4 +49,5 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::get('/donasi', [AdminDonasiController::class, 'index'])->name('donasi.index');
     Route::patch('/donasi/{donasi}/status', [AdminDonasiController::class, 'updateStatus'])->name('donasi.status');
+    Route::delete('/donasi/{donasi}', [AdminDonasiController::class, 'destroy'])->name('donasi.destroy');
 });

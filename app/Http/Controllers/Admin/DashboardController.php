@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Donasi;
 use App\Models\Kampanye;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class DashboardController extends Controller
 {
@@ -46,6 +48,27 @@ class DashboardController extends Controller
             'totalPohon' => (int) Donasi::where('status', 'terverifikasi')->sum('jumlah_pohon'),
             'totalKampanye' => Kampanye::where('status', 'aktif')->count(),
         ]);
+    }
+
+    /** Hapus donatur: akun user + seluruh riwayat donasinya (bukti ikut dibersihkan). */
+    public function hapusDonatur(Request $request, string $email)
+    {
+        $request->validate(['konfirmasi' => ['required', 'in:HAPUS']], [
+            'konfirmasi.in' => 'Ketik HAPUS untuk konfirmasi.',
+        ]);
+
+        $donasiList = Donasi::where('email', $email)->get();
+        $bukti = $donasiList->pluck('bukti')->filter();
+
+        if ($bukti->isNotEmpty()) {
+            Storage::disk('public')->delete($bukti->all());
+        }
+
+        $jumlah = $donasiList->count();
+        Donasi::where('email', $email)->delete();
+        User::where('email', $email)->delete();
+
+        return back()->with('ok', "Donatur {$email} dan {$jumlah} riwayat donasinya dihapus.");
     }
 
     public function users()

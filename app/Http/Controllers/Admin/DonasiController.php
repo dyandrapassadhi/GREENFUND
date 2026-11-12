@@ -34,4 +34,17 @@ class DonasiController extends Controller
 
         return back()->with('ok', "Donasi {$donasi->kode} ditandai: {$donasi->fresh()->status_label}.");
     }
+
+    public function destroy(Donasi $donasi)
+    {
+        $kode = $donasi->kode;
+
+        if ($donasi->bukti) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($donasi->bukti);
+        }
+
+        $donasi->delete();
+
+        return back()->with('ok', "Donasi {$kode} dihapus permanen.");
+    }
 }

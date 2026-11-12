@@ -391,4 +391,73 @@ class GreenFundTest extends TestCase
             ->assertRedirect('/login')
             ->assertSessionHasErrors('email');
     }
+
+    // ---------- hapus data dari panel admin ----------
+
+    public function test_admin_hapus_donasi(): void
+    {
+        $this->actingAs($this->admin());
+        $k = $this->kampanye();
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09901', 'kampanye_id' => $k->id, 'nama_donatur' => 'Hapus Saya',
+            'email' => 'hapus@email.com', 'jumlah_pohon' => 2, 'subtotal' => 50000,
+            'biaya_admin' => 5000, 'kode_unik' => 111, 'total' => 55111, 'status' => 'pending',
+        ]);
+
+        $this->delete("/admin/donasi/{$d->id}")->assertRedirect();
+        $this->assertDatabaseMissing('donasi', ['id' => $d->id]);
+        $this->assertDatabaseHas('kampanye', ['id' => $k->id]);
+    }
+
+    public function test_admin_hapus_donatur_beserta_donasinya(): void
+    {
+        $this->actingAs($this->admin());
+        $k = $this->kampanye();
+        $user = User::factory()->create(['email' => 'target@email.com', 'role' => 'donatur']);
+
+        Donasi::create([
+            'kode' => 'INV-2026-09902', 'kampanye_id' => $k->id, 'user_id' => $user->id,
+            'nama_donatur' => 'Target', 'email' => 'target@email.com', 'jumlah_pohon' => 1,
+            'subtotal' => 25000, 'biaya_admin' => 5000, 'kode_unik' => 222, 'total' => 30222, 'status' => 'pending',
+        ]);
+        // donasi milik orang lain tidak boleh ikut terhapus
+        $lain = Donasi::create([
+            'kode' => 'INV-2026-09903', 'kampanye_id' => $k->id, 'nama_donatur' => 'Lain',
+            'email' => 'lain@email.com', 'jumlah_pohon' => 1, 'subtotal' => 25000,
+            'biaya_admin' => 5000, 'kode_unik' => 333, 'total' => 30333, 'status' => 'pending',
+        ]);
+
+        $this->delete('/admin/donatur/'.urlencode('target@email.com'), ['konfirmasi' => 'HAPUS'])
+            ->assertRedirect();
+
+        $this->assertDatabaseMissing('users', ['email' => 'target@email.com']);
+        $this->assertDatabaseMissing('donasi', ['email' => 'target@email.com']);
+        $this->assertDatabaseHas('donasi', ['id' => $lain->id]);
+    }
+
+    public function test_hapus_donatur_menolak_tanpa_konfirmasi(): void
+    {
+        $this->actingAs($this->admin());
+
+        $this->delete('/admin/donatur/'.urlencode('x@email.com'), ['konfirmasi' => 'salah'])
+            ->assertSessionHasErrors('konfirmasi');
+    }
+
+    public function test_donatur_tidak_bisa_menghapus_data(): void
+    {
+        $donatur = User::factory()->create(['role' => 'donatur']);
+        $k = $this->kampanye();
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09904', 'kampanye_id' => $k->id, 'nama_donatur' => 'Korban',
+            'email' => 'korban@email.com', 'jumlah_pohon' => 1, 'subtotal' => 25000,
+            'biaya_admin' => 5000, 'kode_unik' => 444, 'total' => 30444, 'status' => 'pending',
+        ]);
+
+        $this->actingAs($donatur)->delete("/admin/donasi/{$d->id}")->assertForbidden();
+        $this->assertDatabaseHas('donasi', ['id' => $d->id]);
+
+        $this->actingAs($donatur)->delete('/admin/donatur/'.urlencode('korban@email.com'), ['konfirmasi' => 'HAPUS'])
+            ->assertForbidden();
+        $this->assertDatabaseHas('donasi', ['id' => $d->id]);
+    }
 }

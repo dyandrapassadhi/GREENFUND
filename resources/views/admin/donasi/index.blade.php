@@ -52,6 +52,12 @@
               <input type="hidden" name="status" value="ditolak">
               <button class="btn btn-danger btn-sm" title="Tolak" style="height:30px;padding:0 10px;font-size:12px">Tolak</button>
             </form>
+            <form method="post" action="{{ route('admin.donasi.destroy', $d) }}" style="display:inline"
+                  onsubmit="return confirm('Hapus donasi {{ $d->kode }} dari {{ $d->nama_donatur }}? Tindakan ini permanen.')">
+              @csrf @method('DELETE')
+              <button class="btn-icon" style="width:30px;height:30px;color:var(--danger)" title="Hapus donasi" aria-label="Hapus donasi {{ $d->kode }}">
+                <span data-icon="x" data-ic-class="ic-sm"></span></button>
+            </form>
           </td>
         </tr>
       @empty
