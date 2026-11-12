@@ -46,7 +46,20 @@
         </div>
         <div class="pay-box">
           <div class="row gap-8 mb-8"><span data-icon="grid" data-ic-class="ic-sm"></span><b style="font-size:14px">QRIS</b></div>
-          @if($qrisPayload)
+          @if($dokuReady ?? false)
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center;padding:10px 0">
+              <span style="width:52px;height:52px;border-radius:15px;background:var(--leaf-soft);color:var(--emerald);display:flex;align-items:center;justify-content:center">
+                <span data-icon="wallet" data-ic-class="ic" style="width:26px;height:26px"></span></span>
+              <b style="font-size:14px">Bayar via DOKU</b>
+              <span class="tiny">Pilih QRIS di halaman pembayaran DOKU. Nominal &amp; status terverifikasi otomatis.</span>
+              <form method="post" action="{{ route('doku.pay', $donasi->kode) }}" style="width:100%">
+                @csrf
+                <button class="btn btn-primary btn-block" style="height:42px;font-size:14px">
+                  Bayar dengan QRIS <span data-icon="arrow-right" data-ic-class="ic-sm"></span></button>
+              </form>
+              @error('doku')<p class="err">{{ $message }}</p>@enderror
+            </div>
+          @elseif($qrisPayload)
             <img src="{{ route('donasi.qris', $donasi->kode) }}" alt="QRIS pembayaran {{ $donasi->kode }}"
                  width="440" height="440" style="width:100%;height:auto;border-radius:10px;background:#fff;border:1px solid var(--border)">
             <p class="tiny" style="text-align:center;margin-top:8px">
@@ -58,7 +71,9 @@
               <span class="tiny" style="text-align:center">QRIS belum aktif — gunakan transfer bank</span>
             </div>
           @endif
-          <p class="tiny" style="text-align:center;margin-top:8px">Scan dengan m-banking / e-wallet</p>
+          @unless($dokuReady ?? false)
+            <p class="tiny" style="text-align:center;margin-top:8px">Scan dengan m-banking / e-wallet</p>
+          @endunless
         </div>
       </div>
 

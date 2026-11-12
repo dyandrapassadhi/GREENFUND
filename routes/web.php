@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\DonasiController as AdminDonasiController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\LogPerkembanganController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DokuController;
 use App\Http\Controllers\DonasiController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\KatalogController;
@@ -31,7 +32,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/donasi/{donasi:kode}', [DonasiController::class, 'invoice'])->name('donasi.invoice');
     Route::get('/donasi/{donasi:kode}/qris.png', [DonasiController::class, 'qris'])->name('donasi.qris');
     Route::post('/donasi/{donasi:kode}/bukti', [DonasiController::class, 'uploadBukti'])->name('donasi.bukti');
+    Route::post('/donasi/{donasi:kode}/doku', [DokuController::class, 'pay'])->name('doku.pay');
 });
+
+// HTTP Notification dari DOKU (tanpa auth, diverifikasi signature)
+Route::post('/doku/notify', [DokuController::class, 'notify'])
+    ->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class)
+    ->name('doku.notify');
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');

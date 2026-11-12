@@ -460,4 +460,96 @@ class GreenFundTest extends TestCase
             ->assertForbidden();
         $this->assertDatabaseHas('donasi', ['id' => $d->id]);
     }
+
+    // ---------- DOKU payment gateway ----------
+
+    public function test_doku_signature_dan_digest_sesuai_spesifikasi(): void
+    {
+        $body = json_encode(['order' => ['amount' => 20000]], JSON_UNESCAPED_SLASHES);
+
+        $this->assertSame(
+            base64_encode(hash('sha256', $body, true)),
+            \App\Services\Doku::digest($body)
+        );
+
+        $sig = \App\Services\Doku::signature('CID', 'RID', '2020-08-11T08:45:42Z', '/checkout/v1/payment', 'DGT', 'SK');
+        $want = 'HMACSHA256='.base64_encode(hash_hmac('sha256',
+            "Client-Id:CID\nRequest-Id:RID\nRequest-Timestamp:2020-08-11T08:45:42Z\nRequest-Target:/checkout/v1/payment\nDigest:DGT", 'SK', true));
+
+        $this->assertSame($want, $sig);
+
+        // tanpa digest (GET) = 4 komponen
+        $get = \App\Services\Doku::signature('CID', 'RID', '2020-08-11T08:45:42Z', '/status', null, 'SK');
+        $this->assertStringNotContainsString('Digest:', base64_decode(substr($get, 11)));
+    }
+
+    public function test_tombol_doku_muncul_di_invoice_bila_terkonfigurasi(): void
+    {
+        $k = $this->kampanye();
+        $user = User::factory()->create(['role' => 'donatur']);
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09701', 'kampanye_id' => $k->id, 'user_id' => $user->id,
+            'nama_donatur' => 'Doku User', 'email' => 'doku@email.com', 'jumlah_pohon' => 2,
+            'subtotal' => 50000, 'biaya_admin' => 5000, 'kode_unik' => 111, 'total' => 55111, 'status' => 'pending',
+        ]);
+
+        config(['services.doku.client_id' => '', 'services.doku.secret_key' => '']);
+        $this->actingAs($user)->get('/donasi/'.$d->kode)->assertOk()->assertDontSee('Bayar via DOKU');
+
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'SK-TEST']);
+        $this->actingAs($user)->get('/donasi/'.$d->kode)->assertOk()->assertSee('Bayar via DOKU');
+    }
+
+    public function test_webhook_doku_menolak_signature_palsu(): void
+    {
+        $this->postJson('/doku/notify', ['order' => ['invoice_number' => 'INV-X']])
+            ->assertStatus(401);
+    }
+
+    public function test_webhook_doku_melunasi_donasi(): void
+    {
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'SK-TEST']);
+
+        $k = $this->kampanye();
+        $user = User::factory()->create(['role' => 'donatur']);
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09702', 'kampanye_id' => $k->id, 'user_id' => $user->id,
+            'nama_donatur' => 'Lunas', 'email' => 'lunas@email.com', 'jumlah_pohon' => 1,
+            'subtotal' => 25000, 'biaya_admin' => 5000, 'kode_unik' => 222, 'total' => 30222, 'status' => 'pending',
+        ]);
+
+        $payload = ['order' => ['invoice_number' => $d->kode], 'transaction' => ['status' => 'SUCCESS']];
+        $body = json_encode($payload, JSON_UNESCAPED_SLASHES);
+        $reqId = 'req-1';
+        $ts = '2026-11-16T01:00:00Z';
+
+        $res = $this->call('POST', '/doku/notify', [], [], [], [
+            'CONTENT_TYPE' => 'application/json',
+            'HTTP_CLIENT_ID' => 'MCH-TEST',
+            'HTTP_REQUEST_ID' => $reqId,
+            'HTTP_REQUEST_TIMESTAMP' => $ts,
+            'HTTP_SIGNATURE' => \App\Services\Doku::signature('MCH-TEST', $reqId, $ts, '/doku/notify', \App\Services\Doku::digest($body), 'SK-TEST'),
+        ], $body);
+
+        $res->assertOk();
+        $this->assertSame('terverifikasi', $d->fresh()->status);
+        $this->assertNotNull($d->fresh()->paid_at);
+    }
+
+    public function test_donasi_lunas_tidak_buat_transaksi_doku_baru(): void
+    {
+        config(['services.doku.client_id' => 'MCH-TEST', 'services.doku.secret_key' => 'SK-TEST']);
+
+        $k = $this->kampanye();
+        $user = User::factory()->create(['role' => 'donatur']);
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09703', 'kampanye_id' => $k->id, 'user_id' => $user->id,
+            'nama_donatur' => 'Sudah Bayar', 'email' => 'sudah@email.com', 'jumlah_pohon' => 1,
+            'subtotal' => 25000, 'biaya_admin' => 5000, 'kode_unik' => 333, 'total' => 30333, 'status' => 'terverifikasi',
+        ]);
+
+        $this->actingAs($user)->post('/donasi/'.$d->kode.'/doku')
+            ->assertRedirect('/donasi/'.$d->kode)
+            ->assertSessionHas('ok');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Donasi;
 use App\Models\Kampanye;
+use App\Services\Doku;
 use App\Services\Qris;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Encoding\Encoding;
@@ -51,6 +52,7 @@ class DonasiController extends Controller
         return view('public.invoice', [
             'donasi' => $donasi,
             'qrisPayload' => Qris::forAmount($donasi->total),
+            'dokuReady' => Doku::enabled(),
         ]);
     }
 

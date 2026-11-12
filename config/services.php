@@ -49,4 +49,12 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI', '/auth/google/callback'),
     ],
 
+    'doku' => [
+        'client_id' => env('DOKU_CLIENT_ID'),
+        'secret_key' => env('DOKU_SECRET_KEY'),
+        'shared_key' => env('DOKU_SHARED_KEY'),
+        'sandbox' => env('DOKU_SANDBOX', true),
+        'payment_due_minutes' => env('DOKU_PAYMENT_DUE_MINUTES', 60),
+    ],
+
 ];

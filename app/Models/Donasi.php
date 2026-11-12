@@ -12,6 +12,7 @@ class Donasi extends Model
     protected $fillable = [
         'kode', 'kampanye_id', 'user_id', 'nama_donatur', 'email', 'jumlah_pohon',
         'subtotal', 'biaya_admin', 'kode_unik', 'total', 'status', 'bukti', 'tenggat_bayar',
+        'gateway', 'gateway_ref', 'payment_url', 'paid_at',
     ];
 
     protected $casts = ['tenggat_bayar' => 'datetime'];
