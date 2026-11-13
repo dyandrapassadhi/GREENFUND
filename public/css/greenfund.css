@@ -153,16 +153,17 @@ button{border:none;cursor:pointer;background:none;color:inherit}
 .footer a{display:block;font-size:14px;color:rgba(255,255,255,.78);margin-bottom:12px}
 .footer a:hover{color:#fff}
 .footer-bottom{border-top:1px solid rgba(255,255,255,.14);margin-top:40px;padding:22px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:13px;color:rgba(255,255,255,.6)}
-.social{
+/* .footer a lebih spesifik dari .social — pakai .footer .social agar menang */
+.footer .social{
   width:36px;height:36px;border-radius:50%;
   background:rgba(255,255,255,.12);
   display:inline-flex;align-items:center;justify-content:center;
-  color:#fff;flex:0 0 auto;
+  color:#fff;flex:0 0 auto;margin-bottom:0;
   transition:background .15s,transform .15s,color .15s;
 }
-.social svg{width:17px;height:17px;stroke-width:2}
-.social:hover{background:var(--leaf);color:var(--forest);transform:translateY(-1px)}
-.social:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
+.footer .social svg{width:17px;height:17px;stroke-width:2;display:block}
+.footer .social:hover{background:var(--leaf);color:var(--forest);transform:translateY(-1px)}
+.footer .social:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
 
 /* ---------- Auth ---------- */
 .auth-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
