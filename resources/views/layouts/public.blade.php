@@ -87,10 +87,13 @@
     </div>
     <div class="footer-bottom">
       <span>&copy; {{ date('Y') }} Green-Fund. Dibuat untuk bumi yang lebih hijau.</span>
-      <div class="row gap-8">
-        <a href="#" class="social"><span data-icon="instagram" data-ic-class="ic-sm"></span></a>
-        <a href="#" class="social"><span data-icon="twitter" data-ic-class="ic-sm"></span></a>
-        <a href="#" class="social"><span data-icon="globe" data-ic-class="ic-sm"></span></a>
+      <div class="row gap-8" style="align-items:center">
+        <a href="#" class="social" aria-label="Instagram Green-Fund" title="Instagram">
+          <span data-icon="instagram" data-ic-class="ic-sm"></span></a>
+        <a href="#" class="social" aria-label="X (Twitter) Green-Fund" title="X (Twitter)">
+          <span data-icon="twitter" data-ic-class="ic-sm"></span></a>
+        <a href="mailto:hubungi@greenfund.id" class="social" aria-label="Email Green-Fund" title="Email kami">
+          <span data-icon="globe" data-ic-class="ic-sm"></span></a>
       </div>
     </div>
   </div>

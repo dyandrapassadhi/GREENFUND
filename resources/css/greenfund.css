@@ -152,9 +152,17 @@ button{border:none;cursor:pointer;background:none;color:inherit}
 .footer h6{font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.55);margin-bottom:16px}
 .footer a{display:block;font-size:14px;color:rgba(255,255,255,.78);margin-bottom:12px}
 .footer a:hover{color:#fff}
-.footer-bottom{border-top:1px solid rgba(255,255,255,.14);margin-top:40px;padding:20px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;font-size:13px;color:rgba(255,255,255,.6)}
-.social{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff}
-.social:hover{background:rgba(255,255,255,.28)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.14);margin-top:40px;padding:22px 0;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;font-size:13px;color:rgba(255,255,255,.6)}
+.social{
+  width:36px;height:36px;border-radius:50%;
+  background:rgba(255,255,255,.12);
+  display:inline-flex;align-items:center;justify-content:center;
+  color:#fff;flex:0 0 auto;
+  transition:background .15s,transform .15s,color .15s;
+}
+.social svg{width:17px;height:17px;stroke-width:2}
+.social:hover{background:var(--leaf);color:var(--forest);transform:translateY(-1px)}
+.social:focus-visible{outline:2px solid var(--leaf);outline-offset:2px}
 
 /* ---------- Auth ---------- */
 .auth-wrap{display:grid;grid-template-columns:1fr 1fr;min-height:100vh}
