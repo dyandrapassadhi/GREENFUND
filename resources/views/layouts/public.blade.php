@@ -31,9 +31,14 @@
         @if(auth()->user()->isAdmin())
           <a href="{{ route('admin.dashboard') }}" class="btn btn-outline btn-sm">Panel Admin</a>
         @endif
-        <form method="post" action="{{ route('logout') }}">@csrf
-          <button class="btn btn-primary btn-sm">Keluar</button>
-        </form>
+        <a href="{{ route('profil') }}" class="user-chip {{ request()->routeIs('profil*') ? 'active' : '' }}" title="Profil saya">
+          @if(auth()->user()->avatar)
+            <img src="{{ auth()->user()->avatar }}" alt="" class="user-chip-avatar" referrerpolicy="no-referrer">
+          @else
+            <span class="user-chip-avatar">{{ collect(explode(' ', auth()->user()->name))->take(2)->map(fn($w) => mb_substr($w,0,1))->implode('') }}</span>
+          @endif
+          <span class="user-chip-name">{{ \Illuminate\Support\Str::limit(auth()->user()->name, 16) }}</span>
+        </a>
       @else
         <a href="{{ route('login') }}" class="btn btn-ghost btn-sm">Masuk</a>
         <a href="{{ auth()->check() ? route('katalog') : route('login') }}" class="btn btn-primary btn-sm">Donasi Sekarang

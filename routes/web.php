@@ -9,6 +9,7 @@ use App\Http\Controllers\DokuController;
 use App\Http\Controllers\DonasiController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\KatalogController;
+use App\Http\Controllers\ProfilController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [KatalogController::class, 'home'])->name('home');
@@ -33,6 +34,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/donasi/{donasi:kode}/qris.png', [DonasiController::class, 'qris'])->name('donasi.qris');
     Route::post('/donasi/{donasi:kode}/bukti', [DonasiController::class, 'uploadBukti'])->name('donasi.bukti');
     Route::post('/donasi/{donasi:kode}/doku', [DokuController::class, 'pay'])->name('doku.pay');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil');
+    Route::get('/profil/donasi/{donasi}', [ProfilController::class, 'donasi'])->name('profil.donasi');
 });
 
 // HTTP Notification dari DOKU (tanpa auth, diverifikasi signature)

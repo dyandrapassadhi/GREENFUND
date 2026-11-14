@@ -552,4 +552,92 @@ class GreenFundTest extends TestCase
             ->assertRedirect('/donasi/'.$d->kode)
             ->assertSessionHas('ok');
     }
+
+    // ---------- profil & tracking donasi ----------
+
+    public function test_profil_wajib_login(): void
+    {
+        $this->get('/profil')->assertRedirect('/login');
+        $this->get('/profil/donasi/1')->assertRedirect('/login');
+    }
+
+    public function test_profil_menampilkan_identitas_dan_ringkasan(): void
+    {
+        $k = $this->kampanye();
+        $user = User::factory()->create(['name' => 'Dyandra Profil', 'email' => 'prof@email.com', 'role' => 'donatur']);
+
+        Donasi::create([
+            'kode' => 'INV-2026-09801', 'kampanye_id' => $k->id, 'user_id' => $user->id,
+            'nama_donatur' => 'Dyandra Profil', 'email' => 'prof@email.com', 'jumlah_pohon' => 7,
+            'subtotal' => 175000, 'biaya_admin' => 5000, 'kode_unik' => 111, 'total' => 180111, 'status' => 'terverifikasi',
+        ]);
+
+        $res = $this->actingAs($user)->get('/profil');
+        $res->assertOk()
+            ->assertSee('Dyandra Profil')
+            ->assertSee('prof@email.com')
+            ->assertSee('Donatur')
+            ->assertSee('Pohon lunas')
+            ->assertSee('Progres donasi kamu')
+            ->assertSee('INV-2026-09801');
+    }
+
+    public function test_profil_tidak_menampilkan_donasi_orang_lain(): void
+    {
+        $k = $this->kampanye();
+        $saya = User::factory()->create(['role' => 'donatur']);
+        $lain = User::factory()->create(['role' => 'donatur']);
+
+        Donasi::create([
+            'kode' => 'INV-2026-09802', 'kampanye_id' => $k->id, 'user_id' => $lain->id,
+            'nama_donatur' => 'Orang Lain', 'email' => 'lain@email.com', 'jumlah_pohon' => 3,
+            'subtotal' => 75000, 'biaya_admin' => 5000, 'kode_unik' => 222, 'total' => 80222, 'status' => 'pending',
+        ]);
+
+        $this->actingAs($saya)->get('/profil')
+            ->assertOk()
+            ->assertDontSee('INV-2026-09802')
+            ->assertSee('Belum ada donasi');
+    }
+
+    public function test_detail_tracking_donasi_milik_sendiri(): void
+    {
+        $k = $this->kampanye();
+        $user = User::factory()->create(['role' => 'donatur']);
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09803', 'kampanye_id' => $k->id, 'user_id' => $user->id,
+            'nama_donatur' => 'Saya', 'email' => 'saya@email.com', 'jumlah_pohon' => 5,
+            'subtotal' => 125000, 'biaya_admin' => 5000, 'kode_unik' => 333, 'total' => 130333, 'status' => 'terverifikasi',
+        ]);
+
+        $this->actingAs($user)->get("/profil/donasi/{$d->id}")
+            ->assertOk()
+            ->assertSee('INV-2026-09803')
+            ->assertSee('Progres penanaman')
+            ->assertSee('Porsi kamu');
+    }
+
+    public function test_tidak_bisa_buka_tracking_donasi_orang_lain(): void
+    {
+        $k = $this->kampanye();
+        $saya = User::factory()->create(['role' => 'donatur']);
+        $lain = User::factory()->create(['role' => 'donatur']);
+        $d = Donasi::create([
+            'kode' => 'INV-2026-09804', 'kampanye_id' => $k->id, 'user_id' => $lain->id,
+            'nama_donatur' => 'Bukan Saya', 'email' => 'bukan@email.com', 'jumlah_pohon' => 2,
+            'subtotal' => 50000, 'biaya_admin' => 5000, 'kode_unik' => 444, 'total' => 55444, 'status' => 'pending',
+        ]);
+
+        $this->actingAs($saya)->get("/profil/donasi/{$d->id}")->assertForbidden();
+    }
+
+    public function test_header_pakai_chip_profil_bukan_tombol_keluar(): void
+    {
+        $user = User::factory()->create(['name' => 'Chip User', 'role' => 'donatur']);
+
+        $this->actingAs($user)->get('/')
+            ->assertOk()
+            ->assertSee('Chip User')
+            ->assertSee(route('profil'));
+    }
 }
