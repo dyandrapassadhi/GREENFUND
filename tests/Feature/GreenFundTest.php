@@ -640,4 +640,92 @@ class GreenFundTest extends TestCase
             ->assertSee('Chip User')
             ->assertSee(route('profil'));
     }
+
+    // ---------- upload cover kampanye ----------
+
+    public function test_admin_upload_cover_kampanye(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->actingAs($this->admin());
+
+        $file = \Illuminate\Http\UploadedFile::fake()->image('cover.jpg', 1200, 675);
+
+        $this->post('/admin/kampanye', [
+            'judul' => 'Kampanye Berfoto',
+            'kategori' => 'Mangrove',
+            'lokasi' => 'Demak',
+            'target_pohon' => 500,
+            'harga_per_pohon' => 25000,
+            'status' => 'aktif',
+            'cover' => $file,
+        ])->assertRedirect();
+
+        $k = Kampanye::where('judul', 'Kampanye Berfoto')->firstOrFail();
+        $this->assertNotNull($k->cover, 'cover harus tersimpan');
+        \Illuminate\Support\Facades\Storage::disk('public')->assertExists($k->cover);
+    }
+
+    public function test_cover_tampil_di_kartu_katalog(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->actingAs($this->admin());
+
+        $this->post('/admin/kampanye', [
+            'judul' => 'Kampanye Dengan Gambar',
+            'kategori' => 'Gambut',
+            'lokasi' => 'Kapuas',
+            'target_pohon' => 100,
+            'harga_per_pohon' => 25000,
+            'status' => 'aktif',
+            'cover' => \Illuminate\Http\UploadedFile::fake()->image('foto.jpg', 1200, 675),
+        ]);
+
+        $k = Kampanye::where('judul', 'Kampanye Dengan Gambar')->firstOrFail();
+
+        $this->get('/kampanye')
+            ->assertOk()
+            ->assertSee('Kampanye Dengan Gambar')
+            ->assertSee('camp-cover')
+            ->assertSee('background-image');
+    }
+
+    public function test_upload_cover_menolak_file_bukan_gambar(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->actingAs($this->admin());
+
+        $this->from('/admin/kampanye')->post('/admin/kampanye', [
+            'judul' => 'Cover Salah',
+            'kategori' => 'Mangrove',
+            'lokasi' => 'X',
+            'target_pohon' => 10,
+            'harga_per_pohon' => 25000,
+            'status' => 'aktif',
+            'cover' => \Illuminate\Http\UploadedFile::fake()->create('dokumen.pdf', 100, 'application/pdf'),
+        ])->assertSessionHasErrors('cover');
+
+        $this->assertDatabaseMissing('kampanye', ['judul' => 'Cover Salah']);
+    }
+
+    public function test_ganti_cover_menghapus_file_lama(): void
+    {
+        \Illuminate\Support\Facades\Storage::fake('public');
+        $this->actingAs($this->admin());
+
+        $lama = \Illuminate\Http\UploadedFile::fake()->image('lama.jpg')->store('cover', 'public');
+        $k = Kampanye::create([
+            'judul' => 'Ganti Cover', 'slug' => 'ganti-cover', 'kategori' => 'Mangrove',
+            'lokasi' => 'Demak', 'target_pohon' => 100, 'harga_per_pohon' => 25000,
+            'status' => 'aktif', 'cover' => $lama,
+        ]);
+
+        $this->put("/admin/kampanye/{$k->id}", [
+            'judul' => 'Ganti Cover', 'kategori' => 'Mangrove', 'lokasi' => 'Demak',
+            'target_pohon' => 100, 'harga_per_pohon' => 25000, 'status' => 'aktif',
+            'cover' => \Illuminate\Http\UploadedFile::fake()->image('baru.jpg'),
+        ])->assertRedirect();
+
+        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing($lama);
+        $this->assertNotSame($lama, $k->fresh()->cover);
+    }
 }

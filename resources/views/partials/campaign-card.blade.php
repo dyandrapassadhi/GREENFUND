@@ -1,10 +1,13 @@
 @php
   $persen = $k->target_pohon > 0 ? (int) round(min(100, ($k->terkumpul ?? 0) / $k->target_pohon * 100)) : 0;
+  $coverUrl = $k->cover ? \Illuminate\Support\Facades\Storage::disk('public')->url($k->cover) : null;
 @endphp
 <article class="camp-card">
-  <a href="{{ route('katalog.show', $k) }}" class="camp-cover">
-    <span class="ring a"></span><span class="ring b"></span>
-    <span data-icon="tree" data-ic-class="tree"></span>
+  <a href="{{ route('katalog.show', $k) }}" class="camp-cover" @if($coverUrl) style="background-image:url('{{ $coverUrl }}');background-size:cover;background-position:center" @endif>
+    @unless($coverUrl)
+      <span class="ring a"></span><span class="ring b"></span>
+      <span data-icon="tree" data-ic-class="tree"></span>
+    @endunless
     <span class="badge badge-amber">{{ $k->kategori }}</span>
   </a>
   <div class="camp-body">

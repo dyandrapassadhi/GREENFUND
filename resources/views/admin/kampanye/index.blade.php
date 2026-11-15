@@ -64,7 +64,7 @@
 {{-- Modal create/edit --}}
 <div class="mask" id="modal-kampanye" hidden>
   <div class="modal">
-    <form method="post" action="{{ route('admin.kampanye.store') }}" id="formKampanye">
+    <form method="post" action="{{ route('admin.kampanye.store') }}" id="formKampanye" enctype="multipart/form-data">
       @csrf
       <input type="hidden" name="_method" value="POST" id="fMethod">
       <div class="card-head" style="border-bottom:1px solid var(--border)">
@@ -112,12 +112,15 @@
           </div>
           <div class="field" style="grid-column:1/-1">
             <label class="label">Gambar Cover</label>
-            <div class="dropzone" style="padding:22px">
-              <span style="width:40px;height:40px;border-radius:12px;background:#fff;border:1px dashed var(--leaf);display:flex;align-items:center;justify-content:center;color:var(--emerald)">
+            <label class="dropzone" style="padding:22px;cursor:pointer" id="coverDrop">
+              <input type="file" name="cover" accept="image/png,image/jpeg,image/webp" style="display:none" id="coverInput">
+              <img id="coverPreview" alt="" style="display:none;width:100%;max-width:280px;height:120px;object-fit:cover;border-radius:10px;border:1px solid var(--border)">
+              <span id="coverIcon" style="width:40px;height:40px;border-radius:12px;background:#fff;border:1px dashed var(--leaf);display:flex;align-items:center;justify-content:center;color:var(--emerald)">
                 <span data-icon="image" data-ic-class="ic-sm"></span></span>
-              <b style="font-size:13.5px">Unggah cover kampanye</b>
-              <span class="tiny">PNG atau JPG, maks. 5 MB &middot; rasio 16:9</span>
-            </div>
+              <b style="font-size:13.5px" id="coverTitle">Unggah cover kampanye</b>
+              <span class="tiny" id="coverSub">PNG atau JPG, maks. 5 MB &middot; rasio 16:9</span>
+            </label>
+            @error('cover')<p class="err">{{ $message }}</p>@enderror
           </div>
         </div>
       </div>
@@ -163,5 +166,38 @@
   mask.querySelectorAll('[data-close]').forEach(b => b.addEventListener('click', () => mask.hidden = true));
   mask.addEventListener('click', e => { if (e.target === mask) mask.hidden = true; });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') mask.hidden = true; });
+
+  // preview cover sebelum upload
+  const coverInput = document.getElementById('coverInput');
+  const coverPreview = document.getElementById('coverPreview');
+  const coverIcon = document.getElementById('coverIcon');
+  const coverTitle = document.getElementById('coverTitle');
+  const coverSub = document.getElementById('coverSub');
+
+  coverInput.addEventListener('change', () => {
+    const f = coverInput.files[0];
+    if (!f) {
+      coverPreview.style.display = 'none';
+      coverIcon.style.display = 'flex';
+      coverTitle.textContent = 'Unggah cover kampanye';
+      coverSub.textContent = 'PNG atau JPG, maks. 5 MB · rasio 16:9';
+      return;
+    }
+    coverPreview.src = URL.createObjectURL(f);
+    coverPreview.style.display = 'block';
+    coverIcon.style.display = 'none';
+    coverTitle.textContent = f.name;
+    coverSub.textContent = (f.size / 1024 / 1024).toFixed(1) + ' MB · siap diunggah';
+  });
+
+  // reset preview tiap kali modal dibuka
+  document.querySelectorAll('[data-open="modal-kampanye"]').forEach(b => b.addEventListener('click', () => {
+    coverInput.value = '';
+    coverPreview.style.display = 'none';
+    coverPreview.removeAttribute('src');
+    coverIcon.style.display = 'flex';
+    coverTitle.textContent = 'Unggah cover kampanye';
+    coverSub.textContent = 'PNG atau JPG, maks. 5 MB · rasio 16:9';
+  }));
 </script>
 @endpush
