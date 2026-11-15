@@ -18,7 +18,7 @@
       <div class="divider" style="margin:24px 0"></div>
 
       <div class="inv-line">
-        <span>{{ $donasi->kampanye->judul }} — {{ $donasi->jumlah_pohon }} pohon</span>
+        <span>{{ $donasi->kampanye->judul }} ({{ $donasi->jumlah_pohon }} pohon)</span>
         <b class="num">Rp {{ number_format($donasi->subtotal, 0, ',', '.') }}</b>
       </div>
       <div class="inv-line">
@@ -68,7 +68,7 @@
           @else
             <div class="qris" style="flex-direction:column;gap:6px;height:auto;padding:18px">
               <span data-icon="grid" data-ic-class="ic" style="width:36px;height:36px"></span>
-              <span class="tiny" style="text-align:center">QRIS belum aktif — gunakan transfer bank</span>
+              <span class="tiny" style="text-align:center">QRIS belum aktif, gunakan transfer bank</span>
             </div>
           @endif
           @unless($dokuReady ?? false)

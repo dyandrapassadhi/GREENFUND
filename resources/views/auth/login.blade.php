@@ -53,7 +53,7 @@
         Masuk dengan Google</a>
       @unless($googleReady)
         <p class="tiny mt-8" style="text-align:center;color:var(--muted)">
-          Google login belum aktif — isi <code>GOOGLE_CLIENT_ID</code> di <code>.env</code>
+          Google login belum aktif. Isi <code>GOOGLE_CLIENT_ID</code> di <code>.env</code>
         </p>
       @endunless
 

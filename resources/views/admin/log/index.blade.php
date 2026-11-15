@@ -44,7 +44,7 @@
     <div class="grid-2 mt-16">
       <div class="field">
         <label class="label">Judul Log</label>
-        <div class="input"><input name="judul" required placeholder="Penanaman batch #4 — 1.200 bibit"></div>
+        <div class="input"><input name="judul" required placeholder="Penanaman batch #4 (1.200 bibit)"></div>
         <label class="label" style="margin-top:8px">Catatan Perkembangan</label>
         <textarea class="textarea" name="catatan" maxlength="500" rows="4"
           placeholder="Tinggi rata-rata 42 cm. Survival rate 94%..."></textarea>
@@ -71,8 +71,8 @@
 
 <div class="card mt-24">
   <div class="card-head">
-    <h2 class="h5">Riwayat Log — {{ $selected->judul ?? 'Belum ada kampanye' }}</h2>
-    <span class="small" style="font-size:12px">{{ $logs->count() }} entri &middot; terakhir {{ optional($logs->first()?->tanggal)->translatedFormat('d M Y') ?? '—' }}</span>
+    <h2 class="h5">Riwayat Log: {{ $selected->judul ?? 'Belum ada kampanye' }}</h2>
+    <span class="small" style="font-size:12px">{{ $logs->count() }} entri &middot; terakhir {{ optional($logs->first()?->tanggal)->translatedFormat('d M Y') ?? 'belum ada' }}</span>
   </div>
   @if($logs->isEmpty())
     <div class="empty">

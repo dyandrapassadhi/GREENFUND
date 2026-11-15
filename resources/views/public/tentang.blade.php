@@ -24,9 +24,9 @@
 
   <div class="grid-2" style="padding-bottom:72px">
     @foreach([
-      ['star', 'SDG 13 — Climate Action', 'Setiap pohon yang ditanam menyerap ±22 kg CO₂ per tahun. Log pertumbuhan bulanan memastikan bibit benar-benar hidup, bukan hanya ditanam.'],
-      ['sprout', 'SDG 15 — Life on Land', 'Restorasi mangrove, gambut, dan daerah aliran sungai mengembalikan habitat endemik serta menahan abrasi pesisir.'],
-      ['users', 'SDG 17 — Partnerships', 'Kami membeli bibit dari petani lokal, sehingga donasi berputar di ekonomi desa sekaligus menjaga tutupan lahan.'],
+      ['star', 'SDG 13: Climate Action', 'Setiap pohon yang ditanam menyerap ±22 kg CO₂ per tahun. Log pertumbuhan bulanan memastikan bibit benar-benar hidup, bukan hanya ditanam.'],
+      ['sprout', 'SDG 15: Life on Land', 'Restorasi mangrove, gambut, dan daerah aliran sungai mengembalikan habitat endemik serta menahan abrasi pesisir.'],
+      ['users', 'SDG 17: Partnerships', 'Kami membeli bibit dari petani lokal, sehingga donasi berputar di ekonomi desa sekaligus menjaga tutupan lahan.'],
       ['shield', 'Transparansi Dana', 'Setiap donasi punya kode invoice, bukti transfer diverifikasi manual, dan rekap dana diterbitkan tiap kuartal.'],
     ] as [$icon, $title, $desc])
       <div class="card card-pad row gap-16" style="align-items:flex-start">

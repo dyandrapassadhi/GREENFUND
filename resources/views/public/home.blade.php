@@ -110,7 +110,7 @@
   <div class="cta-banner">
     <div>
       <h2 class="h2 white" style="font-size:32px;line-height:40px">Siap menanam pohon pertamamu?</h2>
-      <p class="mt-8" style="color:rgba(255,255,255,.85);font-size:15px">Mulai dari Rp 25.000 — satu bibit, satu masa depan.</p>
+      <p class="mt-8" style="color:rgba(255,255,255,.85);font-size:15px">Mulai dari Rp 25.000, satu bibit satu masa depan.</p>
     </div>
     <a href="{{ route('katalog') }}" class="btn btn-amber btn-lg">Mulai Donasi
       <span data-icon="arrow-right" data-ic-class="ic-sm"></span></a>

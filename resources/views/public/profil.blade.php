@@ -116,7 +116,7 @@
     <div class="card empty">
       <span class="chip"><span data-icon="sprout" data-ic-class="ic-lg"></span></span>
       <h3 class="h4">Belum ada donasi</h3>
-      <p class="small">Mulai tanam pohon pertamamu — progresnya akan muncul di sini.</p>
+      <p class="small">Mulai tanam pohon pertamamu, progresnya akan muncul di sini.</p>
       <a href="{{ route('katalog') }}" class="btn btn-primary btn-sm mt-8">Jelajahi kampanye</a>
     </div>
   @endforelse

@@ -33,7 +33,7 @@ class DokuController extends Controller
                 'callback_url_result' => route('donasi.invoice', $donasi->kode),
                 'auto_redirect' => true,
                 'line_items' => [[
-                    'name' => 'Donasi '.$donasi->jumlah_pohon.' pohon — '.$donasi->kampanye->judul,
+                    'name' => 'Donasi '.$donasi->jumlah_pohon.' pohon: '.$donasi->kampanye->judul,
                     'quantity' => 1,
                     'price' => (int) $donasi->subtotal,
                     'sku' => 'POHON-'.$donasi->kampanye_id,

@@ -74,18 +74,48 @@ class GreenFundSeeder extends Seeder
 
         $demak = Kampanye::where('judul', 'Hutan Mangrove Pesisir Demak')->value('id');
 
-        foreach ([
-            ['2026-11-12', 'baik', 'Penanaman batch #4 — 1.200 bibit', 'Zona C, jarak tanam 3×3 m, curah hujan 120 mm/bulan.'],
-            ['2026-10-28', 'perawatan', 'Perawatan & penyulaman 84 bibit', 'Sebagian terserang hama kepiting, tim menambah pelindung bambu.'],
-            ['2026-09-04', 'baik', 'Penanaman batch #3 — 1.500 bibit', 'Tinggi rata-rata 42 cm, survival rate 94%.'],
-        ] as [$tgl, $kondisi, $judul, $catatan]) {
-            LogPerkembangan::create([
-                'kampanye_id' => $demak,
-                'tanggal' => $tgl,
-                'kondisi' => $kondisi,
-                'judul' => $judul,
-                'catatan' => $catatan,
-            ]);
+        // Log lapangan untuk SEMUA kampanye supaya tracking bibit tiap donasi tidak kosong
+        $logPerKampanye = [
+            'Hutan Mangrove Pesisir Demak' => [
+                ['2026-11-12', 'baik', 'Penanaman batch #4 (1.200 bibit)', 'Zona C, jarak tanam 3×3 m, curah hujan 120 mm/bulan.'],
+                ['2026-10-28', 'perawatan', 'Perawatan & penyulaman 84 bibit', 'Sebagian terserang hama kepiting, tim menambah pelindung bambu.'],
+                ['2026-09-04', 'baik', 'Penanaman batch #3 (1.500 bibit)', 'Tinggi rata-rata 42 cm, survival rate 94%.'],
+            ],
+            'Restorasi DAS Citarum Hulu' => [
+                ['2026-11-08', 'baik', 'Penanaman batch #2 (900 bibit)', 'Lereng utara, tinggi rata-rata 35 cm, survival rate 91%.'],
+                ['2026-09-20', 'perawatan', 'Penyulaman 60 bibit di petak B', 'Tanah longsor kecil setelah hujan deras, sudah ditanami ulang.'],
+            ],
+            'Rehabilitasi Gambut Kalimantan' => [
+                ['2026-11-10', 'baik', 'Penanaman batch #5 (2.000 bibit)', 'Kedalaman air 40 cm, muka air tanah terjaga berkat sekat kanal.'],
+                ['2026-10-02', 'baik', 'Monitoring bulanan', 'Tinggi rata-rata 58 cm, survival rate 96%.'],
+            ],
+            'Penghijauan Lereng Merapi' => [
+                ['2026-11-05', 'baik', 'Penanaman batch #1 (700 bibit)', 'Zona rawan erupsi, jenis salam dan puspa.'],
+            ],
+            'Reboisasi Hulu Brantas' => [
+                ['2026-11-11', 'perawatan', 'Perawatan gulma petak A', 'Gulma tinggi setelah musim hujan, tim menambah 6 hari kerja.'],
+                ['2026-09-15', 'baik', 'Penanaman batch #3 (1.100 bibit)', 'Survival rate 93%, tinggi rata-rata 39 cm.'],
+            ],
+            'Sabuk Hijau Pantai Bali' => [
+                ['2026-11-14', 'baik', 'Penanaman batch #2 (600 bibit bakau)', 'Pantai Jembrana, jarak 2×2 m, ombak terlindung pemecah gelombang.'],
+                ['2026-10-18', 'baik', 'Penanaman batch #1 (450 bibit)', 'Survival rate 89%, tinggi rata-rata 28 cm.'],
+            ],
+        ];
+
+        foreach ($logPerKampanye as $judulKampanye => $logs) {
+            $kid = Kampanye::where('judul', $judulKampanye)->value('id');
+            if (! $kid) {
+                continue;
+            }
+            foreach ($logs as [$tgl, $kondisi, $judul, $catatan]) {
+                LogPerkembangan::create([
+                    'kampanye_id' => $kid,
+                    'tanggal' => $tgl,
+                    'kondisi' => $kondisi,
+                    'judul' => $judul,
+                    'catatan' => $catatan,
+                ]);
+            }
         }
 
         foreach ([
