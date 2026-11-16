@@ -728,60 +728,32 @@ class GreenFundTest extends TestCase
         $this->assertNotSame($lama, $k->fresh()->cover);
     }
 
-    // ---------- foto hero halaman depan ----------
+    // ---------- foto hero halaman depan (file statis) ----------
 
-    public function test_hero_default_tanpa_foto(): void
+    public function test_hero_default_tanpa_file(): void
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
-
         $this->get('/')->assertOk()->assertDontSee('data-photo');
     }
 
-    public function test_admin_upload_foto_hero(): void
+    public function test_hero_pakai_file_di_public_img(): void
     {
-        \Illuminate\Support\Facades\Storage::fake('public');
-        $this->actingAs($this->admin());
+        $dir = public_path('img');
+        if (! is_dir($dir)) {
+            mkdir($dir, 0777, true);
+        }
+        $file = $dir.'/hero.jpg';
+        file_put_contents($file, base64_decode(
+            '/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0a'
+            .'HBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/wAALCAABAAEBAREA/8QAFAABAAAAAAAA'
+            .'AAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AKp//2Q=='
+        ));
 
-        $this->post('/admin/pengaturan/hero', [
-            'hero' => \Illuminate\Http\UploadedFile::fake()->image('hero.jpg', 800, 1000),
-        ])->assertRedirect();
-
-        \Illuminate\Support\Facades\Storage::disk('public')->assertExists('hero/hero.jpg');
-
-        $this->get('/')->assertOk()->assertSee('data-photo');
-    }
-
-    public function test_hapus_foto_hero(): void
-    {
-        \Illuminate\Support\Facades\Storage::fake('public');
-        $this->actingAs($this->admin());
-
-        \Illuminate\Http\UploadedFile::fake()->image('hero.jpg')->storeAs('hero', 'hero.jpg', 'public');
-        \Illuminate\Support\Facades\Storage::disk('public')->assertExists('hero/hero.jpg');
-
-        $this->delete('/admin/pengaturan/hero')->assertRedirect();
-
-        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing('hero/hero.jpg');
-        $this->get('/')->assertOk()->assertDontSee('data-photo');
-    }
-
-    public function test_upload_hero_menolak_non_gambar(): void
-    {
-        \Illuminate\Support\Facades\Storage::fake('public');
-        $this->actingAs($this->admin());
-
-        $this->from('/admin/pengaturan')->post('/admin/pengaturan/hero', [
-            'hero' => \Illuminate\Http\UploadedFile::fake()->create('x.pdf', 50, 'application/pdf'),
-        ])->assertSessionHasErrors('hero');
-
-        \Illuminate\Support\Facades\Storage::disk('public')->assertMissing('hero/hero.jpg');
-    }
-
-    public function test_donatur_tidak_bisa_ubah_foto_hero(): void
-    {
-        $donatur = User::factory()->create(['role' => 'donatur']);
-
-        $this->actingAs($donatur)->get('/admin/pengaturan')->assertForbidden();
-        $this->actingAs($donatur)->post('/admin/pengaturan/hero', [])->assertForbidden();
+        try {
+            $this->get('/')->assertOk()
+                ->assertSee('data-photo')
+                ->assertSee('img/hero.jpg');
+        } finally {
+            @unlink($file);
+        }
     }
 }

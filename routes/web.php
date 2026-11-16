@@ -4,7 +4,6 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DonasiController as AdminDonasiController;
 use App\Http\Controllers\Admin\KampanyeController;
 use App\Http\Controllers\Admin\LogPerkembanganController;
-use App\Http\Controllers\Admin\PengaturanController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DokuController;
 use App\Http\Controllers\DonasiController;
@@ -62,7 +61,4 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::patch('/donasi/{donasi}/status', [AdminDonasiController::class, 'updateStatus'])->name('donasi.status');
     Route::delete('/donasi/{donasi}', [AdminDonasiController::class, 'destroy'])->name('donasi.destroy');
 
-    Route::get('/pengaturan', [PengaturanController::class, 'index'])->name('pengaturan');
-    Route::post('/pengaturan/hero', [PengaturanController::class, 'uploadHero'])->name('pengaturan.hero');
-    Route::delete('/pengaturan/hero', [PengaturanController::class, 'hapusHero'])->name('pengaturan.hero.hapus');
 });

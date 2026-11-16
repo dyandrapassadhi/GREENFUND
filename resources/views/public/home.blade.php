@@ -25,12 +25,8 @@
       </div>
     </div>
     <div>
-      @php
-        $heroPath = storage_path('app/public/hero/hero.jpg');
-        $heroVer = is_file($heroPath) ? filemtime($heroPath) : time();
-      @endphp
-      <div class="hero-panel" @if($heroImage ?? false) data-photo="1" style="--hero-img:url('{{ asset('storage/hero/hero.jpg') }}?v={{ $heroVer }}')" @endif>
-        @unless($heroImage ?? false)
+      <div class="hero-panel" @if($heroImage ?? null) data-photo="1" style="--hero-img:url('{{ $heroImage }}')" @endif>
+        @unless($heroImage ?? null)
           <span class="ring r1"></span><span class="ring r2"></span>
           <span data-icon="tree" data-ic-class="tree"></span>
         @endunless

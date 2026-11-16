@@ -30,3 +30,6 @@ Thumbs.db
 /cj.txt
 /praktikumLaravel2
 /h.html
+
+# foto hero (isi sendiri di public/img/hero.jpg)
+/public/img/hero.*

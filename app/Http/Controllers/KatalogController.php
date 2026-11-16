@@ -23,10 +23,14 @@ class KatalogController extends Controller
         $unggulan = Kampanye::withSum(['donasi as terkumpul' => fn ($q) => $q->where('status', 'terverifikasi')], 'jumlah_pohon')
             ->where('status', 'aktif')->take(3)->get();
 
+        // Foto hero: taruh file di public/img/hero.jpg (atau .png/.webp)
+        $heroFile = collect(['hero.jpg', 'hero.jpeg', 'hero.png', 'hero.webp'])
+            ->first(fn ($f) => is_file(public_path('img/'.$f)));
+
         return view('public.home', [
             'stats' => $stats,
             'unggulan' => $unggulan,
-            'heroImage' => \Illuminate\Support\Facades\Storage::disk('public')->exists('hero/hero.jpg'),
+            'heroImage' => $heroFile ? asset('img/'.$heroFile) : null,
         ]);
     }
 
