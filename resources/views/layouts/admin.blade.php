@@ -32,6 +32,8 @@
         <span data-icon="wallet" data-ic-class="ic-sm"></span><span>Verifikasi Donasi</span></a>
       <a href="{{ route('admin.donatur') }}" class="{{ request()->routeIs('admin.donatur') ? 'active' : '' }}">
         <span data-icon="users" data-ic-class="ic-sm"></span><span>Donatur</span></a>
+      <a href="{{ route('admin.pengaturan') }}" class="{{ request()->routeIs('admin.pengaturan*') ? 'active' : '' }}">
+        <span data-icon="image" data-ic-class="ic-sm"></span><span>Pengaturan</span></a>
     </nav>
     <div class="promo">
       Setiap donasi terverifikasi

@@ -25,9 +25,15 @@
       </div>
     </div>
     <div>
-      <div class="hero-panel">
-        <span class="ring r1"></span><span class="ring r2"></span>
-        <span data-icon="tree" data-ic-class="tree"></span>
+      @php
+        $heroPath = storage_path('app/public/hero/hero.jpg');
+        $heroVer = is_file($heroPath) ? filemtime($heroPath) : time();
+      @endphp
+      <div class="hero-panel" @if($heroImage ?? false) data-photo="1" style="--hero-img:url('{{ asset('storage/hero/hero.jpg') }}?v={{ $heroVer }}')" @endif>
+        @unless($heroImage ?? false)
+          <span class="ring r1"></span><span class="ring r2"></span>
+          <span data-icon="tree" data-ic-class="tree"></span>
+        @endunless
       </div>
       <div class="stat-strip">
         <div class="stat-mini"><b class="num">{{ number_format($stats['totalPohon'], 0, ',', '.') }}</b><span>Pohon Ditanam</span></div>

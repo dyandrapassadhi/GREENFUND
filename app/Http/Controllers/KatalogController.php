@@ -23,7 +23,11 @@ class KatalogController extends Controller
         $unggulan = Kampanye::withSum(['donasi as terkumpul' => fn ($q) => $q->where('status', 'terverifikasi')], 'jumlah_pohon')
             ->where('status', 'aktif')->take(3)->get();
 
-        return view('public.home', compact('stats', 'unggulan'));
+        return view('public.home', [
+            'stats' => $stats,
+            'unggulan' => $unggulan,
+            'heroImage' => \Illuminate\Support\Facades\Storage::disk('public')->exists('hero/hero.jpg'),
+        ]);
     }
 
     public function index(Request $request)

@@ -121,6 +121,7 @@ button{border:none;cursor:pointer;background:none;color:inherit}
 /* ---------- Hero ---------- */
 .hero{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;padding:72px 0 48px}
 .hero-panel{background:linear-gradient(150deg,var(--forest),var(--emerald));border-radius:28px;height:420px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hero-panel[data-photo]{background-image:var(--hero-img) !important;background-size:cover !important;background-position:center !important;background-repeat:no-repeat !important}
 .hero-panel .ring{position:absolute;border-radius:50%;border:1.5px solid rgba(255,255,255,.18)}
 .hero-panel .ring.r1{width:320px;height:320px;top:-60px;right:-60px;background:rgba(255,255,255,.05)}
 .hero-panel .ring.r2{width:180px;height:180px;bottom:-40px;left:-30px;background:rgba(255,255,255,.07)}
