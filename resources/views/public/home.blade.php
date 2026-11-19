@@ -8,7 +8,7 @@
       <span class="badge badge-green" style="height:30px;padding:0 14px">
         <span data-icon="star" data-ic-class="ic-sm"></span>SDG 13 &middot; SDG 15 &middot; Climate &amp; Life on Land
       </span>
-      <h1 class="h1 mt-24">Tanam Pohon Hari Ini,<br>Warisi Hutan untuk Besok</h1>
+      <h1 class="h1 mt-24">Tanam Pohon Hari Ini,<br>Warisi Hutan untuk<br>Besok</h1>
       <p class="body mt-16" style="max-width:520px">
         Platform crowdfunding &amp; monitoring penanaman pohon yang transparan. Setiap rupiah tercatat,
         setiap bibit terpantau lewat log perkembangan berfoto.
@@ -33,7 +33,7 @@
       </div>
       <div class="stat-strip">
         <div class="stat-mini"><b class="num">{{ number_format($stats['totalPohon'], 0, ',', '.') }}</b><span>Pohon Ditanam</span></div>
-        <div class="stat-mini"><b class="num">Rp {{ number_format($stats['totalPohon'] * 25000 / 1000000, 0, ',', '.') }}M</b><span>Dana Terkumpul</span></div>
+        <div class="stat-mini"><b class="num">Rp {{ number_format($stats['totalPohon'] * 25000, 0, ',', '.') }}</b><span>Dana Terkumpul</span></div>
         <div class="stat-mini"><b class="num">{{ $stats['totalKampanye'] }}</b><span>Proyek Selesai</span></div>
       </div>
     </div>
